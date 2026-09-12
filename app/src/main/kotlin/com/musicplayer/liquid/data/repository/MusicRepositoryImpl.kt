@@ -8,7 +8,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.stringSetPreference
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.musicplayer.liquid.data.model.Track
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -34,7 +34,7 @@ class MusicRepositoryImpl @Inject constructor(
 ) : MusicRepository {
     
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
-    private val favoriteIdsKey = stringSetPreference("favorite_track_ids")
+    private val favoriteIdsKey = stringSetPreferencesKey("favorite_track_ids")
     private val isDarkThemeKey = booleanPreferencesKey("is_dark_theme")
     
     override fun getAllTracks(): Flow<List<Track>> = _tracks.asStateFlow()

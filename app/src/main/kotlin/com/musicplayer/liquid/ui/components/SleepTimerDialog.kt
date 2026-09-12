@@ -146,36 +146,3 @@ private fun TimerOption(
         Text(label)
     }
 }
-
-@Composable
-fun SleepTimerButton(
-    sleepTimer: SleepTimer,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
-        animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
-        label = "sleep_timer_scale"
-    )
-    
-    IconButton(
-        onClick = onClick,
-        interactionSource = interactionSource,
-        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }
-    ) {
-        Badge(
-            containerColor = if (sleepTimer.enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-            contentColor = if (sleepTimer.enabled) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-        ) {
-            Icon(
-                imageVector = Icons.Default.Timer,
-                contentDescription = "睡眠定时器",
-                tint = if (sleepTimer.enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-    }
-}

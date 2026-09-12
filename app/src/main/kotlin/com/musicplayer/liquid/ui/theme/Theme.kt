@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.musicplayer.liquid.ui.components.rememberReducedMotionPreference
+import com.musicplayer.liquid.util.rememberReducedMotionPreference
 
 /**
  * 全局Reduced Motion状态

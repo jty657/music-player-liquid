@@ -51,7 +51,7 @@ fun AlbumCover(
                 repeatMode = RepeatMode.Restart
             )
         } else {
-            tween(0) // 静止时立即归零
+            snap() // 静止时立即归零（无动画）
         },
         label = "album_rotation"
     )

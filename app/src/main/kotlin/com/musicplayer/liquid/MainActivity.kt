@@ -98,6 +98,7 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
     val sortOption by viewModel.sortOption.collectAsState()
     val currentTrack by viewModel.currentTrack.collectAsState()
     val playbackState by viewModel.playbackState.collectAsState()
+    val isDarkTheme by viewModel.isDarkTheme.collectAsState()
     val playbackMode by viewModel.playbackMode.collectAsState()
     val volume by viewModel.volume.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
