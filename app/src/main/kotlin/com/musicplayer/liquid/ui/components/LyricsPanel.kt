@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -29,12 +30,14 @@ data class LyricLine(
 /**
  * 歌词显示组件（带滚动同步）
  * 
+ * 已实现功能：
+ * - ✅ 根据currentPosition自动滚动到当前歌词
+ * - ✅ 高亮当前歌词行（主色 + 动画过渡）
+ * - ✅ 点击歌词行跳转到对应时间
+ * - ✅ .lrc 格式解析器（LrcParser）
+ * 
  * TODO 功能扩展：
- * - 解析.lrc文件格式
- * - 根据currentPosition自动滚动到当前歌词
- * - 高亮当前歌词行
  * - 支持翻译歌词（双语显示）
- * - 点击歌词行跳转到对应时间
  */
 @Composable
 fun LyricsPanel(
@@ -116,7 +119,10 @@ fun LyricsPanel(
                             MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                         },
                         textAlign = TextAlign.Center,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onSeek(line.timeMs) }
+                            .padding(vertical = 4.dp)
                     )
                 }
             }

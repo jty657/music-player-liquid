@@ -1,7 +1,6 @@
 package com.musicplayer.liquid.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
@@ -21,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 import kotlinx.coroutines.delay
 
 /**
@@ -40,9 +40,9 @@ fun EmptyState(
     
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(tween(300)) + scaleIn(
+        enter = fadeIn(tween(AnimationConstants.ENTRANCE_DURATION)) + scaleIn(
             initialScale = 0.9f,
-            animationSpec = tween(250, easing = LinearOutSlowInEasing)
+            animationSpec = tween(AnimationConstants.ENTRANCE_DURATION + 50, easing = AnimationConstants.EASE_OUT)
         )
     ) {
         Column(

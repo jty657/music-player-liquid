@@ -2,11 +2,13 @@ package com.musicplayer.liquid.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VolumeDown
@@ -17,7 +19,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 /**
  * 音量控制组件
@@ -35,8 +39,21 @@ fun VolumeControl(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            // 音量图标按钮
-            IconButton(onClick = { isExpanded = !isExpanded }) {
+            // 音量图标按钮（添加按压反馈）
+            val interactionSource = remember { MutableInteractionSource() }
+            val isPressed by interactionSource.collectIsPressedAsState()
+            
+            val scale by animateFloatAsState(
+                targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
+                animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
+                label = "volume_button_scale"
+            )
+            
+            IconButton(
+                onClick = { isExpanded = !isExpanded },
+                interactionSource = interactionSource,
+                modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale }
+            ) {
                 Icon(
                     imageVector = when {
                         volume == 0f -> Icons.Default.VolumeOff
@@ -54,8 +71,8 @@ fun VolumeControl(
                 visible = isExpanded,
                 enter = fadeIn(animationSpec = tween(150)) + scaleIn(
                     animationSpec = tween(
-                        durationMillis = 200,
-                        easing = LinearOutSlowInEasing
+                        durationMillis = AnimationConstants.ENTRANCE_DURATION,
+                        easing = AnimationConstants.EASE_OUT
                     )
                 ),
                 exit = fadeOut(animationSpec = tween(100)) + scaleOut(animationSpec = tween(150))

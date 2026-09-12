@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.util.TimeFormatter
 import com.musicplayer.liquid.ui.theme.LiquidCyan
 import com.musicplayer.liquid.ui.theme.LiquidPink
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 /**
  * 播放进度条组件 - v2.0 液态玻璃增强版
@@ -42,7 +43,7 @@ fun ProgressBar(
     // 拖动时放大thumb，增强视觉反馈
     val thumbScale by animateFloatAsState(
         targetValue = if (isDragging) 1.3f else 1f,
-        animationSpec = tween(150, easing = LinearOutSlowInEasing),
+        animationSpec = tween(AnimationConstants.ENTRANCE_DURATION, easing = AnimationConstants.EASE_OUT),
         label = "thumb_scale"
     )
     

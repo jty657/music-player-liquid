@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 /**
  * 通用按压反馈Modifier扩展
@@ -25,8 +26,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 @Composable
 fun Modifier.pressableFeedback(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    pressedScale: Float = 0.97f,
-    duration: Int = 100
+    pressedScale: Float = AnimationConstants.PRESS_SCALE,
+    duration: Int = AnimationConstants.PRESS_DURATION
 ): Modifier {
     val isPressed by interactionSource.collectIsPressedAsState()
     
@@ -34,7 +35,7 @@ fun Modifier.pressableFeedback(
         targetValue = if (isPressed) pressedScale else 1f,
         animationSpec = tween(
             durationMillis = duration,
-            easing = androidx.compose.animation.core.LinearOutSlowInEasing
+            easing = AnimationConstants.EASE_OUT
         ),
         label = "press_scale"
     )

@@ -20,6 +20,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import android.os.SystemClock
 import javax.inject.Inject
 import kotlin.random.Random
 
@@ -60,8 +61,8 @@ class PlayerViewModel @Inject constructor(
     private val _sortOption = MutableStateFlow(SortOption.TITLE_ASC)
     val sortOption: StateFlow<SortOption> = _sortOption.asStateFlow()
     
-    private val _isDarkTheme = MutableStateFlow(true)
-    val isDarkTheme: StateFlow<Boolean> = _isDarkTheme.asStateFlow()
+    val isDarkTheme: StateFlow<Boolean> = musicRepository.getThemePreference()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
     
     private val _sleepTimer = MutableStateFlow(SleepTimer())
     val sleepTimer: StateFlow<SleepTimer> = _sleepTimer.asStateFlow()
@@ -305,7 +306,9 @@ class PlayerViewModel @Inject constructor(
     }
     
     fun toggleTheme() {
-        _isDarkTheme.value = !_isDarkTheme.value
+        viewModelScope.launch {
+            musicRepository.saveThemePreference(!isDarkTheme.value)
+        }
     }
     
     fun startSleepTimer(durationMillis: Long) {
@@ -318,11 +321,11 @@ class PlayerViewModel @Inject constructor(
         )
         
         sleepTimerJob = viewModelScope.launch {
-            val startTime = System.currentTimeMillis()
+            val startTime = SystemClock.elapsedRealtime()
             val endTime = startTime + durationMillis
             
-            while (isActive && System.currentTimeMillis() < endTime) {
-                val remaining = endTime - System.currentTimeMillis()
+            while (isActive && SystemClock.elapsedRealtime() < endTime) {
+                val remaining = endTime - SystemClock.elapsedRealtime()
                 _sleepTimer.value = _sleepTimer.value.copy(
                     remainingMillis = remaining.coerceAtLeast(0L)
                 )

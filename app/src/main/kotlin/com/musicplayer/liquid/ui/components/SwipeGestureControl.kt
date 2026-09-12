@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 /**
  * 手势控制增强组件
@@ -87,8 +88,8 @@ fun Modifier.swipeToControl(
                         animatedOffset.animateTo(
                             targetValue = 0f,
                             animationSpec = tween(
-                                durationMillis = 200,
-                                easing = androidx.compose.animation.core.LinearOutSlowInEasing
+                                durationMillis = AnimationConstants.ENTRANCE_DURATION,
+                                easing = AnimationConstants.EASE_OUT
                             )
                         )
                         offsetX = 0f

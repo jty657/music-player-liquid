@@ -31,4 +31,14 @@ interface MusicRepository {
      * 获取收藏曲目
      */
     fun getFavoriteTracks(): Flow<List<Track>>
+    
+    /**
+     * 获取深色模式偏好
+     */
+    fun getThemePreference(): Flow<Boolean>
+    
+    /**
+     * 保存深色模式偏好
+     */
+    suspend fun saveThemePreference(isDark: Boolean)
 }

@@ -61,7 +61,22 @@ fun PlayQueueSheet(
                 }
                 
                 if (queue.isNotEmpty()) {
-                    TextButton(onClick = onClearQueue) {
+                    val clearInteraction = remember { MutableInteractionSource() }
+                    val isClearPressed by clearInteraction.collectIsPressedAsState()
+                    val clearScale by animateFloatAsState(
+                        targetValue = if (isClearPressed) AnimationConstants.PRESS_SCALE else 1f,
+                        animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
+                        label = "queue_clear_scale"
+                    )
+                    
+                    TextButton(
+                        onClick = onClearQueue,
+                        interactionSource = clearInteraction,
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = clearScale
+                            scaleY = clearScale
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.ClearAll,
                             contentDescription = null,

@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.material3.MaterialTheme
@@ -37,9 +38,21 @@ fun GlassCard(
     content: @Composable BoxScope.() -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    // 按压反馈动画（仅在可点击时启用）
+    val scale by animateFloatAsState(
+        targetValue = if (onClick != null && isPressed) 0.97f else 1f,
+        animationSpec = tween(100, easing = FastOutSlowInEasing),
+        label = "glass_card_press"
+    )
     
     Box(
         modifier = modifier
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .clip(shape)
             // 主毛玻璃层：垂直渐变（深色模式下增强对比）
             .background(

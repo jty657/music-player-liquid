@@ -18,6 +18,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 /**
  * 搜索栏组件
@@ -38,7 +39,7 @@ fun SearchBar(
             targetState = isExpanded,
             transitionSpec = {
                 if (targetState) {
-                    (fadeIn(tween(150)) + expandHorizontally(tween(200, easing = LinearOutSlowInEasing)))
+                    (fadeIn(tween(150)) + expandHorizontally(tween(AnimationConstants.ENTRANCE_DURATION, easing = AnimationConstants.EASE_OUT)))
                         .togetherWith(fadeOut(tween(100)) + shrinkHorizontally(tween(150)))
                 } else {
                     (fadeIn(tween(150)) + expandHorizontally(tween(200)))
@@ -107,8 +108,8 @@ fun SearchBar(
                 val isSearchPressed by searchInteraction.collectIsPressedAsState()
                 
                 val searchScale by animateFloatAsState(
-                    targetValue = if (isSearchPressed) 0.97f else 1f,
-                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    targetValue = if (isSearchPressed) AnimationConstants.PRESS_SCALE else 1f,
+                    animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                     label = "search_icon_scale"
                 )
                 

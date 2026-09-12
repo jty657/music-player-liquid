@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.data.model.SleepTimer
 import com.musicplayer.liquid.util.TimeFormatter
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 @Composable
 fun SleepTimerDialog(
@@ -127,8 +128,8 @@ private fun TimerOption(
     val isPressed by interactionSource.collectIsPressedAsState()
     
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
-        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+        targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
+        animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
         label = "timer_option_scale"
     )
     
@@ -156,8 +157,8 @@ fun SleepTimerButton(
     val isPressed by interactionSource.collectIsPressedAsState()
     
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
-        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+        targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
+        animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
         label = "sleep_timer_scale"
     )
     

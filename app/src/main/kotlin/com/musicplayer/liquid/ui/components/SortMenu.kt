@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.data.model.SortOption
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 @Composable
 fun SortMenu(
@@ -24,8 +25,8 @@ fun SortMenu(
     val isPressed by interactionSource.collectIsPressedAsState()
     
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
-        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+        targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
+        animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
         label = "sort_button_scale"
     )
     

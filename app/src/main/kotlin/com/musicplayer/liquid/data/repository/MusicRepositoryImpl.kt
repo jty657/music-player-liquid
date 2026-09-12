@@ -7,6 +7,7 @@ import android.provider.MediaStore
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreference
 import androidx.datastore.preferences.preferencesDataStore
 import com.musicplayer.liquid.data.model.Track
@@ -34,6 +35,7 @@ class MusicRepositoryImpl @Inject constructor(
     
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
     private val favoriteIdsKey = stringSetPreference("favorite_track_ids")
+    private val isDarkThemeKey = booleanPreferencesKey("is_dark_theme")
     
     override fun getAllTracks(): Flow<List<Track>> = _tracks.asStateFlow()
     
@@ -136,6 +138,18 @@ class MusicRepositoryImpl @Inject constructor(
     override fun getFavoriteTracks(): Flow<List<Track>> {
         return _tracks.map { tracks ->
             tracks.filter { it.isFavorite }
+        }
+    }
+    
+    override fun getThemePreference(): Flow<Boolean> {
+        return context.dataStore.data.map { prefs ->
+            prefs[isDarkThemeKey] ?: true // 默认深色模式
+        }
+    }
+    
+    override suspend fun saveThemePreference(isDark: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[isDarkThemeKey] = isDark
         }
     }
 }

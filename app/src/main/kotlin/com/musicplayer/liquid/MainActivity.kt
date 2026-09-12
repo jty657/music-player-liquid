@@ -448,10 +448,26 @@ fun PlayerSection(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 封面（点击切换播放/暂停）
+            // 封面（点击切换播放/暂停，带按压反馈）
+            val coverInteraction = remember { MutableInteractionSource() }
+            val isCoverPressed by coverInteraction.collectIsPressedAsState()
+            val coverScale by animateFloatAsState(
+                targetValue = if (isCoverPressed) AnimationConstants.PRESS_SCALE else 1f,
+                animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
+                label = "cover_press_scale"
+            )
+            
             Box(
                 modifier = Modifier
-                    .clickable(onClick = onPlayPauseClick)
+                    .graphicsLayer {
+                        scaleX = coverScale
+                        scaleY = coverScale
+                    }
+                    .clickable(
+                        interactionSource = coverInteraction,
+                        indication = null,
+                        onClick = onPlayPauseClick
+                    )
                     .clip(MaterialTheme.shapes.medium),
                 contentAlignment = Alignment.Center
             ) {
@@ -844,7 +860,7 @@ fun TrackItem(
 }
 
 /**
- * 最近播放横向卡片（紧凑液态玻璃风格 + 按压反馈）
+ * 最近播放横向卡片（紧凑液态玻璃风格）
  */
 @Composable
 fun RecentTrackCard(
@@ -852,26 +868,10 @@ fun RecentTrackCard(
     isPlaying: Boolean,
     onClick: () -> Unit
 ) {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    
-    val scale by animateFloatAsState(
-        targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
-        animationSpec = tween(
-            durationMillis = AnimationConstants.PRESS_DURATION,
-            easing = AnimationConstants.EASE_OUT
-        ),
-        label = "recent_card_press"
-    )
-    
     GlassCard(
         modifier = Modifier
             .width(160.dp)
-            .height(200.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            },
+            .height(200.dp),
         onClick = onClick
     ) {
         Column(
