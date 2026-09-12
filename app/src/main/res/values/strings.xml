@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Liquid Music</string>
+    <string name="permission_rationale">需要访问存储权限以读取音乐文件</string>
+    <string name="no_tracks_found">未找到音乐文件</string>
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="next">下一曲</string>
+    <string name="previous">上一曲</string>
+    <string name="loading">加载中...</string>
+</resources>
