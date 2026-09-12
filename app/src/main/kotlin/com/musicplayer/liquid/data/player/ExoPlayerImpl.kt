@@ -7,9 +7,15 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.musicplayer.liquid.data.model.PlaybackState
 import com.musicplayer.liquid.data.model.Track
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,17 +35,53 @@ class ExoPlayerImpl @Inject constructor(
     private val _playbackState = MutableStateFlow(PlaybackState())
     override val playbackState: StateFlow<PlaybackState> = _playbackState.asStateFlow()
     
+    private val scope = CoroutineScope(Dispatchers.Main)
+    private var progressUpdateJob: Job? = null
+    
     init {
         // 监听播放器状态变化
         player.addListener(object : Player.Listener {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 updatePlaybackState()
+                if (isPlaying) {
+                    startProgressUpdate()
+                } else {
+                    stopProgressUpdate()
+                }
             }
             
             override fun onPlaybackStateChanged(playbackState: Int) {
                 updatePlaybackState()
+                // 处理播放完成事件
+                if (playbackState == Player.STATE_ENDED) {
+                    onTrackEnded()
+                }
             }
         })
+    }
+    
+    private fun startProgressUpdate() {
+        stopProgressUpdate()
+        progressUpdateJob = scope.launch {
+            while (isActive) {
+                updatePlaybackState()
+                delay(300) // 每300ms更新一次进度
+            }
+        }
+    }
+    
+    private fun stopProgressUpdate() {
+        progressUpdateJob?.cancel()
+        progressUpdateJob = null
+    }
+    
+    private fun onTrackEnded() {
+        // 播放完成后重置状态
+        _playbackState.value = PlaybackState(
+            isPlaying = false,
+            currentPosition = 0L,
+            duration = _playbackState.value.duration
+        )
     }
     
     override suspend fun play(track: Track) {
@@ -55,7 +97,10 @@ class ExoPlayerImpl @Inject constructor(
     }
     
     override fun resume() {
-        player.play()
+        // 检查是否有曲目,避免没准备就播放导致崩溃
+        if (_currentTrack.value != null && player.playbackState != Player.STATE_IDLE) {
+            player.play()
+        }
     }
     
     override fun seekTo(position: Long) {
@@ -63,6 +108,7 @@ class ExoPlayerImpl @Inject constructor(
     }
     
     override fun release() {
+        stopProgressUpdate()
         player.release()
     }
     
