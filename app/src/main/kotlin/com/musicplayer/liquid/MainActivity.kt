@@ -124,7 +124,15 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .swipeToControl(
+                    enabled = currentTrack != null,
+                    onSwipeLeft = { viewModel.playPrevious() },
+                    onSwipeRight = { viewModel.playNext() }
+                )
+        ) {
             // 动态背景
             DynamicBackground(albumArtUri = currentTrack?.albumArtUri)
         
@@ -154,7 +162,19 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // 主题切换（深色模式显示太阳图标，表示"切换到亮色"）
-                    IconButton(onClick = { viewModel.toggleTheme() }) {
+                    val themeInteraction = remember { MutableInteractionSource() }
+                    val isThemePressed by themeInteraction.collectIsPressedAsState()
+                    val themeScale by animateFloatAsState(
+                        targetValue = if (isThemePressed) 0.97f else 1f,
+                        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                        label = "theme_scale"
+                    )
+                    
+                    IconButton(
+                        onClick = { viewModel.toggleTheme() },
+                        interactionSource = themeInteraction,
+                        modifier = Modifier.graphicsLayer { scaleX = themeScale; scaleY = themeScale }
+                    ) {
                         Icon(
                             imageVector = if (isDarkTheme) Icons.Default.LightMode else Icons.Default.DarkMode,
                             contentDescription = if (isDarkTheme) "切换到亮色模式" else "切换到深色模式",
@@ -170,7 +190,19 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                         )
                         
                         // 播放队列
-                        IconButton(onClick = { showQueueSheet = true }) {
+                        val queueInteraction = remember { MutableInteractionSource() }
+                        val isQueuePressed by queueInteraction.collectIsPressedAsState()
+                        val queueScale by animateFloatAsState(
+                            targetValue = if (isQueuePressed) 0.97f else 1f,
+                            animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                            label = "queue_scale"
+                        )
+                        
+                        IconButton(
+                            onClick = { showQueueSheet = true },
+                            interactionSource = queueInteraction,
+                            modifier = Modifier.graphicsLayer { scaleX = queueScale; scaleY = queueScale }
+                        ) {
                             BadgedBox(
                                 badge = {
                                     if (playQueue.isNotEmpty()) {
@@ -193,7 +225,19 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                         )
                         
                         // 收藏过滤
-                        IconButton(onClick = { viewModel.toggleShowOnlyFavorites() }) {
+                        val filterInteraction = remember { MutableInteractionSource() }
+                        val isFilterPressed by filterInteraction.collectIsPressedAsState()
+                        val filterScale by animateFloatAsState(
+                            targetValue = if (isFilterPressed) 0.97f else 1f,
+                            animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                            label = "filter_scale"
+                        )
+                        
+                        IconButton(
+                            onClick = { viewModel.toggleShowOnlyFavorites() },
+                            interactionSource = filterInteraction,
+                            modifier = Modifier.graphicsLayer { scaleX = filterScale; scaleY = filterScale }
+                        ) {
                             Icon(
                                 imageVector = if (showOnlyFavorites) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                 contentDescription = if (showOnlyFavorites) "显示全部" else "只看收藏",
@@ -451,7 +495,23 @@ fun PlayerSection(
                 }
                 
                 // 收藏按钮
-                IconButton(onClick = onFavoriteClick) {
+                val playerFavoriteInteraction = remember { MutableInteractionSource() }
+                val isPlayerFavoritePressed by playerFavoriteInteraction.collectIsPressedAsState()
+                
+                val playerFavoriteScale by animateFloatAsState(
+                    targetValue = if (isPlayerFavoritePressed) 0.97f else 1f,
+                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    label = "player_favorite_scale"
+                )
+                
+                IconButton(
+                    onClick = onFavoriteClick,
+                    interactionSource = playerFavoriteInteraction,
+                    modifier = Modifier.graphicsLayer {
+                        scaleX = playerFavoriteScale
+                        scaleY = playerFavoriteScale
+                    }
+                ) {
                     Icon(
                         imageVector = if (track.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                         contentDescription = if (track.isFavorite) "取消收藏" else "收藏",
@@ -487,8 +547,20 @@ fun PlayerSection(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // 播放模式（带动画）
-                IconButton(onClick = onModeClick) {
+                // 播放模式（带动画 + 按压反馈）
+                val modeInteraction = remember { MutableInteractionSource() }
+                val isModePressed by modeInteraction.collectIsPressedAsState()
+                val modeScale by animateFloatAsState(
+                    targetValue = if (isModePressed) 0.97f else 1f,
+                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    label = "mode_scale"
+                )
+                
+                IconButton(
+                    onClick = onModeClick,
+                    interactionSource = modeInteraction,
+                    modifier = Modifier.graphicsLayer { scaleX = modeScale; scaleY = modeScale }
+                ) {
                     AnimatedContent(
                         targetState = playbackMode,
                         transitionSpec = {
@@ -517,7 +589,19 @@ fun PlayerSection(
                 }
                 
                 // 上一曲
-                IconButton(onClick = onPreviousClick) {
+                val prevInteraction = remember { MutableInteractionSource() }
+                val isPrevPressed by prevInteraction.collectIsPressedAsState()
+                val prevScale by animateFloatAsState(
+                    targetValue = if (isPrevPressed) 0.97f else 1f,
+                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    label = "prev_scale"
+                )
+                
+                IconButton(
+                    onClick = onPreviousClick,
+                    interactionSource = prevInteraction,
+                    modifier = Modifier.graphicsLayer { scaleX = prevScale; scaleY = prevScale }
+                ) {
                     Icon(
                         imageVector = Icons.Default.SkipPrevious,
                         contentDescription = "上一曲",
@@ -560,7 +644,19 @@ fun PlayerSection(
                 }
                 
                 // 下一曲
-                IconButton(onClick = onNextClick) {
+                val nextInteraction = remember { MutableInteractionSource() }
+                val isNextPressed by nextInteraction.collectIsPressedAsState()
+                val nextScale by animateFloatAsState(
+                    targetValue = if (isNextPressed) 0.97f else 1f,
+                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    label = "next_scale"
+                )
+                
+                IconButton(
+                    onClick = onNextClick,
+                    interactionSource = nextInteraction,
+                    modifier = Modifier.graphicsLayer { scaleX = nextScale; scaleY = nextScale }
+                ) {
                     Icon(
                         imageVector = Icons.Default.SkipNext,
                         contentDescription = "下一曲",
@@ -659,9 +755,21 @@ fun TrackItem(
             }
             
             // 收藏按钮
+            val favoriteInteraction = remember { MutableInteractionSource() }
+            val isFavoritePressed by favoriteInteraction.collectIsPressedAsState()
+            
+            val favoriteScale by animateFloatAsState(
+                targetValue = if (isFavoritePressed) 0.97f else 1f,
+                animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                label = "favorite_scale"
+            )
+            
             IconButton(
                 onClick = { onFavoriteClick() },
-                modifier = Modifier.size(40.dp)
+                interactionSource = favoriteInteraction,
+                modifier = Modifier
+                    .size(40.dp)
+                    .graphicsLayer { scaleX = favoriteScale; scaleY = favoriteScale }
             ) {
                 Icon(
                     imageVector = if (track.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
@@ -673,9 +781,21 @@ fun TrackItem(
             
             // 更多菜单
             Box {
+                val menuInteraction = remember { MutableInteractionSource() }
+                val isMenuPressed by menuInteraction.collectIsPressedAsState()
+                
+                val menuScale by animateFloatAsState(
+                    targetValue = if (isMenuPressed) 0.97f else 1f,
+                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    label = "menu_scale"
+                )
+                
                 IconButton(
                     onClick = { showMenu = true },
-                    modifier = Modifier.size(40.dp)
+                    interactionSource = menuInteraction,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .graphicsLayer { scaleX = menuScale; scaleY = menuScale }
                 ) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,

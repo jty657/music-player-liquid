@@ -1,6 +1,8 @@
 package com.musicplayer.liquid.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
@@ -50,8 +52,13 @@ fun VolumeControl(
             // 展开/收起的音量滑块
             AnimatedVisibility(
                 visible = isExpanded,
-                enter = fadeIn(tween(150)) + scaleIn(tween(200, easing = androidx.compose.animation.core.LinearOutSlowInEasing)),
-                exit = fadeOut(tween(100)) + scaleOut(tween(150))
+                enter = fadeIn(animationSpec = tween(150)) + scaleIn(
+                    animationSpec = tween(
+                        durationMillis = 200,
+                        easing = LinearOutSlowInEasing
+                    )
+                ),
+                exit = fadeOut(animationSpec = tween(100)) + scaleOut(animationSpec = tween(150))
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,

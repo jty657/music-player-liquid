@@ -9,12 +9,20 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.musicplayer.liquid.ui.components.rememberReducedMotionPreference
+
+/**
+ * 全局Reduced Motion状态
+ */
+val LocalReducedMotion = compositionLocalOf { false }
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -57,6 +65,9 @@ fun MusicPlayerLiquidTheme(
         else -> LightColorScheme
     }
     
+    // 检测系统无障碍设置
+    val shouldReduceMotion = rememberReducedMotionPreference()
+    
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
@@ -70,9 +81,11 @@ fun MusicPlayerLiquidTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
+    CompositionLocalProvider(LocalReducedMotion provides shouldReduceMotion) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
+    }
 }
