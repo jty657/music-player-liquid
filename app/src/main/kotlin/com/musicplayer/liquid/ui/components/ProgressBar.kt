@@ -1,5 +1,6 @@
 package com.musicplayer.liquid.ui.components
 
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.util.TimeFormatter
 import com.musicplayer.liquid.ui.theme.LiquidCyan
@@ -37,6 +39,13 @@ fun ProgressBar(
     // 拖动时使用临时值，否则使用实际值
     val displayPosition = if (isDragging) tempPosition else currentPosition.toFloat()
     
+    // 拖动时放大thumb，增强视觉反馈
+    val thumbScale by animateFloatAsState(
+        targetValue = if (isDragging) 1.3f else 1f,
+        animationSpec = tween(150, easing = LinearOutSlowInEasing),
+        label = "thumb_scale"
+    )
+    
     GlassCard(
         modifier = modifier,
         shape = MaterialTheme.shapes.medium
@@ -56,12 +65,25 @@ fun ProgressBar(
                     onSeek(tempPosition.toLong())
                 },
                 valueRange = 0f..duration.coerceAtLeast(1).toFloat(),
+                modifier = Modifier.graphicsLayer {
+                    // thumb放大时保持轨道不变（只缩放thumb）
+                    scaleY = 1f
+                },
                 colors = SliderDefaults.colors(
                     thumbColor = MaterialTheme.colorScheme.primary,
                     activeTrackColor = LiquidPink,
                     inactiveTrackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                 ),
-                interactionSource = remember { MutableInteractionSource() }
+                interactionSource = remember { MutableInteractionSource() },
+                thumb = {
+                    SliderDefaults.Thumb(
+                        interactionSource = remember { MutableInteractionSource() },
+                        modifier = Modifier.graphicsLayer {
+                            scaleX = thumbScale
+                            scaleY = thumbScale
+                        }
+                    )
+                }
             )
             
             Spacer(modifier = Modifier.height(4.dp))

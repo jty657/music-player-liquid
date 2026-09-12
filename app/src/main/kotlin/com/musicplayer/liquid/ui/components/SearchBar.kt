@@ -1,6 +1,9 @@
 package com.musicplayer.liquid.ui.components
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -13,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 
 /**
@@ -34,7 +38,7 @@ fun SearchBar(
             targetState = isExpanded,
             transitionSpec = {
                 if (targetState) {
-                    (fadeIn(tween(150)) + expandHorizontally(tween(200, easing = androidx.compose.animation.core.LinearOutSlowInEasing)))
+                    (fadeIn(tween(150)) + expandHorizontally(tween(200, easing = LinearOutSlowInEasing)))
                         .togetherWith(fadeOut(tween(100)) + shrinkHorizontally(tween(150)))
                 } else {
                     (fadeIn(tween(150)) + expandHorizontally(tween(200)))
@@ -98,10 +102,22 @@ fun SearchBar(
                     focusRequester.requestFocus()
                 }
             } else {
-                // 收起状态：搜索图标按钮
+                // 收起状态：搜索图标按钮（带按压反馈）
+                val searchInteraction = remember { MutableInteractionSource() }
+                val isSearchPressed by searchInteraction.collectIsPressedAsState()
+                
+                val searchScale by animateFloatAsState(
+                    targetValue = if (isSearchPressed) 0.97f else 1f,
+                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    label = "search_icon_scale"
+                )
+                
                 IconButton(
                     onClick = { isExpanded = true },
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    interactionSource = searchInteraction,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .graphicsLayer { scaleX = searchScale; scaleY = searchScale }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,

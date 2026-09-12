@@ -1,9 +1,10 @@
 package com.musicplayer.liquid.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
@@ -41,7 +42,7 @@ fun EmptyState(
         visible = visible,
         enter = fadeIn(tween(300)) + scaleIn(
             initialScale = 0.9f,
-            animationSpec = tween(400, easing = androidx.compose.animation.core.LinearOutSlowInEasing)
+            animationSpec = tween(400, easing = LinearOutSlowInEasing)
         )
     ) {
         Column(

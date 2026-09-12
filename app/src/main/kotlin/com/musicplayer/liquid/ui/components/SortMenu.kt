@@ -1,11 +1,15 @@
 package com.musicplayer.liquid.ui.components
 
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.data.model.SortOption
 
@@ -16,9 +20,21 @@ fun SortMenu(
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+        label = "sort_button_scale"
+    )
     
     Box(modifier = modifier) {
-        IconButton(onClick = { expanded = true }) {
+        IconButton(
+            onClick = { expanded = true },
+            interactionSource = interactionSource,
+            modifier = Modifier.graphicsLayer { scaleX = scale; scaleY = scale }
+        ) {
             Icon(
                 imageVector = Icons.Default.Sort,
                 contentDescription = "排序",

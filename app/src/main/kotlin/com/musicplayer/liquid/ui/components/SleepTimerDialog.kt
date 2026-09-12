@@ -1,6 +1,9 @@
 package com.musicplayer.liquid.ui.components
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -8,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.data.model.SleepTimer
 import com.musicplayer.liquid.util.TimeFormatter
@@ -119,12 +123,24 @@ private fun TimerOption(
     onStartTimer: (Long) -> Unit,
     onDismiss: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+        label = "timer_option_scale"
+    )
+    
     OutlinedButton(
         onClick = {
             onStartTimer(durationMillis)
             onDismiss()
         },
-        modifier = Modifier.fillMaxWidth()
+        interactionSource = interactionSource,
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer { scaleX = scale; scaleY = scale }
     ) {
         Text(label)
     }
@@ -136,9 +152,19 @@ fun SleepTimerButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+        label = "sleep_timer_scale"
+    )
+    
     IconButton(
         onClick = onClick,
-        modifier = modifier
+        interactionSource = interactionSource,
+        modifier = modifier.graphicsLayer { scaleX = scale; scaleY = scale }
     ) {
         Badge(
             containerColor = if (sleepTimer.enabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
