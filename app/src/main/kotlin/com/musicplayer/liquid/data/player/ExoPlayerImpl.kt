@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -128,6 +129,7 @@ class ExoPlayerImpl @Inject constructor(
     
     override fun release() {
         stopProgressUpdate()
+        scope.cancel() // 取消协程作用域，防止泄漏
         player.release()
     }
     

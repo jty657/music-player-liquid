@@ -71,8 +71,20 @@ fun SearchBar(
                         )
                     },
                     trailingIcon = {
+                        val clearInteraction = remember { MutableInteractionSource() }
+                        val isClearPressed by clearInteraction.collectIsPressedAsState()
+                        val clearScale by animateFloatAsState(
+                            targetValue = if (isClearPressed) AnimationConstants.PRESS_SCALE else 1f,
+                            animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
+                            label = "search_clear_scale"
+                        )
+                        
                         if (query.isNotEmpty()) {
-                            IconButton(onClick = { onQueryChange("") }) {
+                            IconButton(
+                                onClick = { onQueryChange("") },
+                                interactionSource = clearInteraction,
+                                modifier = Modifier.graphicsLayer { scaleX = clearScale; scaleY = clearScale }
+                            ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "清除",
@@ -80,7 +92,11 @@ fun SearchBar(
                                 )
                             }
                         } else {
-                            IconButton(onClick = { isExpanded = false }) {
+                            IconButton(
+                                onClick = { isExpanded = false },
+                                interactionSource = clearInteraction,
+                                modifier = Modifier.graphicsLayer { scaleX = clearScale; scaleY = clearScale }
+                            ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
                                     contentDescription = "关闭",

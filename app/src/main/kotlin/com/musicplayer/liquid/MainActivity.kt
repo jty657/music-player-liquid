@@ -548,6 +548,25 @@ fun PlayerSection(
             
             Spacer(modifier = Modifier.height(24.dp))
             
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // 歌词面板（示例数据）
+            LyricsPanel(
+                lyrics = remember {
+                    listOf(
+                        LyricLine(0, "欢迎使用 Liquid Music Player"),
+                        LyricLine(3000, "请将 .lrc 歌词文件放入音乐文件目录"),
+                        LyricLine(6000, "歌词将自动同步显示"),
+                        LyricLine(9000, "点击歌词行可跳转到对应时间")
+                    )
+                },
+                currentPosition = playbackState.currentPosition,
+                onSeek = onSeek,
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
             // 音量控制
             VolumeControl(
                 volume = volume,
@@ -572,10 +591,14 @@ fun PlayerSection(
                     label = "mode_scale"
                 )
                 
-                IconButton(
+                FilledTonalIconButton(
                     onClick = onModeClick,
                     interactionSource = modeInteraction,
-                    modifier = Modifier.graphicsLayer { scaleX = modeScale; scaleY = modeScale }
+                    modifier = Modifier.graphicsLayer { scaleX = modeScale; scaleY = modeScale },
+                    colors = IconButtonDefaults.filledTonalIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
                 ) {
                     AnimatedContent(
                         targetState = playbackMode,
@@ -598,8 +621,7 @@ fun PlayerSection(
                                 PlaybackMode.REPEAT_ALL -> "列表循环"
                                 PlaybackMode.REPEAT_ONE -> "单曲循环"
                                 PlaybackMode.SHUFFLE -> "随机播放"
-                            },
-                            tint = MaterialTheme.colorScheme.primary
+                            }
                         )
                     }
                 }
