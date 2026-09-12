@@ -40,19 +40,18 @@ fun AlbumCover(
     // Reduced-motion 支持（符合WCAG无障碍规范）
     val shouldReduceMotion = rememberReducedMotionPreference()
     
-    // 只在isPlaying=true 且 未启用reduced-motion时运行旋转动画（门控避免泄漏）
+    // 只在isPlaying=true 且 未启用reduced-motion时运行旋转动画
     val infiniteTransition = rememberInfiniteTransition(label = "rotation")
     val rotation by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = if (isPlaying && !shouldReduceMotion) 360f else 0f,
-        animationSpec = if (isPlaying && !shouldReduceMotion) {
-            infiniteRepeatable(
-                animation = tween(20000, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart
-            )
-        } else {
-            snap() // 静止时立即归零（无动画）
-        },
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = if (isPlaying && !shouldReduceMotion) 20000 else 0,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
         label = "album_rotation"
     )
     
