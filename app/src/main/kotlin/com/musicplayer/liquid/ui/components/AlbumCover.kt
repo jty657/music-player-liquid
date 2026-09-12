@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.musicplayer.liquid.ui.theme.LiquidCyan
 import com.musicplayer.liquid.ui.theme.LiquidPink
+import com.musicplayer.liquid.util.rememberReducedMotionPreference
 
 /**
  * 专辑封面显示组件
@@ -36,22 +37,24 @@ fun AlbumCover(
     isPlaying: Boolean,
     modifier: Modifier = Modifier
 ) {
-    // 只在isPlaying=true时运行旋转动画
-    val rotation = if (isPlaying) {
-        val infiniteTransition = rememberInfiniteTransition(label = "rotation")
-        val animatedRotation by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
+    // Reduced-motion 支持（符合WCAG无障碍规范）
+    val shouldReduceMotion = rememberReducedMotionPreference()
+    
+    // 只在isPlaying=true 且 未启用reduced-motion时运行旋转动画（门控避免泄漏）
+    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = if (isPlaying && !shouldReduceMotion) 360f else 0f,
+        animationSpec = if (isPlaying && !shouldReduceMotion) {
+            infiniteRepeatable(
                 animation = tween(20000, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart
-            ),
-            label = "album_rotation"
-        )
-        animatedRotation
-    } else {
-        0f
-    }
+            )
+        } else {
+            tween(0) // 静止时立即归零
+        },
+        label = "album_rotation"
+    )
     
     Box(
         modifier = modifier.size(280.dp),

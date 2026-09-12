@@ -15,6 +15,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -26,6 +27,8 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -522,11 +525,15 @@ fun PlayerSection(
                     )
                 }
                 
-                // 播放/暂停（带scale动画反馈 - 按下时缩小）
+                // 播放/暂停（带scale动画反馈 - 不自动动画，通过pressable modifier实现按压反馈）
+                // 使用Interaction Source跟踪按压状态
+                val playPauseInteraction = remember { MutableInteractionSource() }
+                val isPressed by playPauseInteraction.collectIsPressedAsState()
+                
                 val scale by animateFloatAsState(
-                    targetValue = if (playbackState.isPlaying) 0.97f else 1f,
+                    targetValue = if (isPressed) 0.97f else 1f,
                     animationSpec = tween(
-                        durationMillis = 160,
+                        durationMillis = 100,
                         easing = LinearOutSlowInEasing
                     ),
                     label = "play_button_scale"
@@ -534,6 +541,7 @@ fun PlayerSection(
                 
                 FilledIconButton(
                     onClick = onPlayPauseClick,
+                    interactionSource = playPauseInteraction,
                     modifier = Modifier
                         .size(72.dp)
                         .graphicsLayer {
@@ -694,7 +702,7 @@ fun TrackItem(
                 }
             }
             
-            // 播放指示器（仅当前isPlaying=true时运行动画）
+            // 播放指示器（静态，避免列表中50个动画同时运行）
             if (isPlaying) {
                 Box(
                     modifier = Modifier
@@ -703,23 +711,11 @@ fun TrackItem(
                         .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
-                    val infiniteTransition = rememberInfiniteTransition(label = "wave")
-                    val scale by infiniteTransition.animateFloat(
-                        initialValue = 0.8f,
-                        targetValue = 1.2f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(600, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
-                        ),
-                        label = "scale"
-                    )
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "正在播放",
                         tint = Color.White,
-                        modifier = Modifier
-                            .size(16.dp)
-                            .graphicsLayer(scaleX = scale, scaleY = scale)
+                        modifier = Modifier.size(16.dp)
                     )
                 }
             }
@@ -728,7 +724,7 @@ fun TrackItem(
 }
 
 /**
- * 最近播放横向卡片（紧凑液态玻璃风格）
+ * 最近播放横向卡片（紧凑液态玻璃风格 + 按压反馈）
  */
 @Composable
 fun RecentTrackCard(
@@ -736,10 +732,26 @@ fun RecentTrackCard(
     isPlaying: Boolean,
     onClick: () -> Unit
 ) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = tween(
+            durationMillis = 100,
+            easing = LinearOutSlowInEasing
+        ),
+        label = "recent_card_press"
+    )
+    
     GlassCard(
         modifier = Modifier
             .width(160.dp)
-            .height(200.dp),
+            .height(200.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
         onClick = onClick
     ) {
         Column(

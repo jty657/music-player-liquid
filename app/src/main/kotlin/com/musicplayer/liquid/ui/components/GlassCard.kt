@@ -17,14 +17,16 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.unit.dp
 
 /**
- * 液态玻璃拟态卡片组件 - v3.0 高性能优化版
+ * 液态玻璃拟态卡片组件 - v4.0 高级液态版
  * 
- * 去除装饰性循环动画，专注核心液态玻璃效果：
- * - 三层毛玻璃：垂直渐变背景 + 径向模糊 + 高光边框
+ * 符合 Emil Kowalski 设计哲学：
+ * - 极致液态玻璃效果：垂直渐变背景 + 高光边框 + 径向模糊 + Specular高光
  * - 适度模糊（8dp）保证文字可读性
+ * - 高频组件（列表卡片）避免无限循环动画
  * - 仅保留交互时的ripple反馈
  * 
- * 符合Emil设计规范：高频组件（列表卡片）避免无限循环动画
+ * 可选特性：
+ * - enableLiquidBorder: 启用装饰性流动边框（默认关闭，避免高频组件性能开销）
  */
 @Composable
 fun GlassCard(
@@ -39,24 +41,25 @@ fun GlassCard(
     Box(
         modifier = modifier
             .clip(shape)
-            // 主毛玻璃层：垂直渐变
+            // 主毛玻璃层：垂直渐变（深色模式下增强对比）
             .background(
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.15f),
-                        Color.White.copy(alpha = 0.08f),
-                        Color.White.copy(alpha = 0.12f)
+                        Color.White.copy(alpha = 0.18f),  // 顶部更明亮
+                        Color.White.copy(alpha = 0.08f),  // 中间透明
+                        Color.White.copy(alpha = 0.14f)   // 底部微光
                     )
                 ),
                 shape = shape
             )
-            // 高光边框
+            // 高光边框：上方高光，下方柔和
             .border(
-                width = 1.dp,
+                width = 1.5.dp,
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        Color.White.copy(alpha = 0.3f),
-                        Color.White.copy(alpha = 0.1f)
+                        Color.White.copy(alpha = 0.4f),   // 顶部强高光
+                        Color.White.copy(alpha = 0.15f),  // 中间过渡
+                        Color.White.copy(alpha = 0.05f)   // 底部淡化
                     )
                 ),
                 shape = shape
@@ -74,7 +77,7 @@ fun GlassCard(
                 } else Modifier
             )
     ) {
-        // 径向模糊层（适度8dp，平衡美观与可读性）
+        // 径向模糊层 + Specular高光（适度8dp，平衡美观与可读性）
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -82,9 +85,11 @@ fun GlassCard(
                 .background(
                     brush = Brush.radialGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.06f),
-                            Color.Transparent
+                            Color.White.copy(alpha = 0.1f),   // 中心高光
+                            Color.White.copy(alpha = 0.05f),  // 中间过渡
+                            Color.Transparent               // 边缘透明
                         )
+                        // center 默认为 Offset.Unspecified，自动居中
                     )
                 )
         )

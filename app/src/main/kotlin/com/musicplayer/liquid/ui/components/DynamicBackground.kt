@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.palette.graphics.Palette
 import coil.ImageLoader
 import coil.request.ImageRequest
@@ -26,24 +27,31 @@ import kotlinx.coroutines.withContext
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import com.musicplayer.liquid.util.rememberReducedMotionPreference
 
 /**
- * 动态液态背景组件 - v3.0 性能优化版
+ * 动态液态背景组件 - v4.0 性能优化版
  * 
  * 核心特性：
  * - 从专辑封面提取主色调（Palette缓存）
  * - 液态波动效果（双层异相波动）
  * - 平滑颜色过渡（1200ms缓动）
+ * - 支持 prefers-reduced-motion
  * 
  * 性能优化：
  * - 移除纯装饰的粒子层
- * - 波动周期：10s主层 + 13s副层（素数周期避免视觉重复）
+ * - 波动周期：12s主层 + 15s副层（素数周期避免视觉重复）
+ * - reduced-motion时仅保留颜色过渡，移除波动
  */
 @Composable
 fun DynamicBackground(
     albumArtUri: Uri?,
     modifier: Modifier = Modifier
 ) {
+    // 检测 reduced-motion 偏好（符合WCAG无障碍规范）
+    val isInspecting = LocalInspectionMode.current
+    val shouldReduceMotion = rememberReducedMotionPreference()
+    
     var dominantColor by remember { mutableStateOf(Color(0xFF1A1A2E)) }
     var vibrantColor by remember { mutableStateOf(Color(0xFF16213E)) }
     
@@ -59,27 +67,36 @@ fun DynamicBackground(
         label = "vibrant"
     )
     
-    // 双层波动动画
-    val infiniteTransition = rememberInfiniteTransition(label = "liquid_wave")
-    val wave1Phase by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wave1"
-    )
+    // 双层波动动画（reduced-motion 时禁用）
+    val wave1Phase: Float
+    val wave2Phase: Float
     
-    val wave2Phase by infiniteTransition.animateFloat(
-        initialValue = 180f,
-        targetValue = 540f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(13000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "wave2"
-    )
+    if (!shouldReduceMotion && !isInspecting) {
+        val infiniteTransition = rememberInfiniteTransition(label = "liquid_wave")
+        wave1Phase = infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(12000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "wave1"
+        ).value
+        
+        wave2Phase = infiniteTransition.animateFloat(
+            initialValue = 180f,
+            targetValue = 540f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(15000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "wave2"
+        ).value
+    } else {
+        // reduced-motion: 静态背景，仅保留颜色过渡
+        wave1Phase = 0f
+        wave2Phase = 0f
+    }
     
     val context = LocalContext.current
     
