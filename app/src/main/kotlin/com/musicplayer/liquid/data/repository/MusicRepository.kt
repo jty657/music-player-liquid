@@ -21,4 +21,14 @@ interface MusicRepository {
      * 扫描设备音乐库
      */
     suspend fun scanMusicLibrary(): List<Track>
+    
+    /**
+     * 切换收藏状态
+     */
+    suspend fun toggleFavorite(trackId: Long)
+    
+    /**
+     * 获取收藏曲目
+     */
+    fun getFavoriteTracks(): Flow<List<Track>>
 }

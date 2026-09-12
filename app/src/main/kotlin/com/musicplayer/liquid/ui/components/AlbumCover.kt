@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,17 +36,22 @@ fun AlbumCover(
     isPlaying: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "rotation")
-    
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(20000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
-        ),
-        label = "album_rotation"
-    )
+    // 只在isPlaying=true时运行旋转动画
+    val rotation = if (isPlaying) {
+        val infiniteTransition = rememberInfiniteTransition(label = "rotation")
+        val animatedRotation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(20000, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart
+            ),
+            label = "album_rotation"
+        )
+        animatedRotation
+    } else {
+        0f
+    }
     
     Box(
         modifier = modifier.size(280.dp),
@@ -75,7 +81,7 @@ fun AlbumCover(
             contentDescription = "专辑封面",
             contentScale = ContentScale.Crop,
             loading = {
-                // 加载中显示占位符
+                // 加载中显示占位符 + 脉冲动画
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -85,11 +91,10 @@ fun AlbumCover(
                         ),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.MusicNote,
-                        contentDescription = null,
-                        modifier = Modifier.size(120.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(48.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 3.dp
                     )
                 }
             },
@@ -116,7 +121,7 @@ fun AlbumCover(
                 .size(280.dp)
                 .shadow(16.dp, CircleShape)
                 .clip(CircleShape)
-                .rotate(if (isPlaying) rotation else 0f)
+                .rotate(rotation)
         )
     }
 }

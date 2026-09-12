@@ -60,6 +60,16 @@ class ExoPlayerImpl @Inject constructor(
                     onTrackEnded()
                 }
             }
+            
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                // 播放错误时重置状态
+                _playbackState.value = PlaybackState(
+                    isPlaying = false,
+                    currentPosition = 0L,
+                    duration = 0L
+                )
+                stopProgressUpdate()
+            }
         })
     }
     
@@ -68,7 +78,7 @@ class ExoPlayerImpl @Inject constructor(
         progressUpdateJob = scope.launch {
             while (isActive) {
                 updatePlaybackState()
-                delay(300) // 每300ms更新一次进度
+                delay(500) // 每500ms更新一次进度，减少CPU占用
             }
         }
     }
@@ -110,6 +120,10 @@ class ExoPlayerImpl @Inject constructor(
     
     override fun seekTo(position: Long) {
         player.seekTo(position)
+    }
+    
+    override fun setVolume(volume: Float) {
+        player.volume = volume.coerceIn(0f, 1f)
     }
     
     override fun release() {

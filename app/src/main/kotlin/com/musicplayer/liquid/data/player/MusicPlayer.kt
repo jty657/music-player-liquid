@@ -39,6 +39,11 @@ interface MusicPlayer {
     fun seekTo(position: Long)
     
     /**
+     * 设置音量 (0.0 - 1.0)
+     */
+    fun setVolume(volume: Float)
+    
+    /**
      * 释放资源
      */
     fun release()

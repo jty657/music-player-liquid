@@ -4,15 +4,24 @@ import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringSetPreference
+import androidx.datastore.preferences.preferencesDataStore
 import com.musicplayer.liquid.data.model.Track
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "music_prefs")
 
 /**
  * 音乐库仓库实现
@@ -24,6 +33,7 @@ class MusicRepositoryImpl @Inject constructor(
 ) : MusicRepository {
     
     private val _tracks = MutableStateFlow<List<Track>>(emptyList())
+    private val favoriteIdsKey = stringSetPreference("favorite_track_ids")
     
     override fun getAllTracks(): Flow<List<Track>> = _tracks.asStateFlow()
     
@@ -34,6 +44,9 @@ class MusicRepositoryImpl @Inject constructor(
     override suspend fun scanMusicLibrary(): List<Track> = withContext(Dispatchers.IO) {
         val tracks = mutableListOf<Track>()
         val contentResolver: ContentResolver = context.contentResolver
+        
+        // 读取收藏列表
+        val favoriteIds = context.dataStore.data.first()[favoriteIdsKey] ?: emptySet()
         
         val projection = arrayOf(
             MediaStore.Audio.Media._ID,
@@ -84,7 +97,8 @@ class MusicRepositoryImpl @Inject constructor(
                         album = album,
                         duration = duration,
                         uri = contentUri,
-                        albumArtUri = albumArtUri
+                        albumArtUri = albumArtUri,
+                        isFavorite = favoriteIds.contains(id.toString())
                     )
                 )
             }
@@ -92,5 +106,36 @@ class MusicRepositoryImpl @Inject constructor(
         
         _tracks.value = tracks
         tracks
+    }
+    
+    override suspend fun toggleFavorite(trackId: Long) {
+        context.dataStore.edit { prefs ->
+            val favorites = prefs[favoriteIdsKey]?.toMutableSet() ?: mutableSetOf()
+            val trackIdStr = trackId.toString()
+            
+            if (favorites.contains(trackIdStr)) {
+                favorites.remove(trackIdStr)
+            } else {
+                favorites.add(trackIdStr)
+            }
+            
+            prefs[favoriteIdsKey] = favorites
+        }
+        
+        // 更新当前列表
+        val favorites = context.dataStore.data.first()[favoriteIdsKey] ?: emptySet()
+        _tracks.value = _tracks.value.map { track ->
+            if (track.id == trackId) {
+                track.copy(isFavorite = favorites.contains(trackId.toString()))
+            } else {
+                track
+            }
+        }
+    }
+    
+    override fun getFavoriteTracks(): Flow<List<Track>> {
+        return _tracks.map { tracks ->
+            tracks.filter { it.isFavorite }
+        }
     }
 }

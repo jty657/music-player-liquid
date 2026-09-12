@@ -12,7 +12,8 @@ data class Track(
     val album: String,
     val duration: Long,
     val uri: Uri,
-    val albumArtUri: Uri?
+    val albumArtUri: Uri?,
+    val isFavorite: Boolean = false
 )
 
 /**
