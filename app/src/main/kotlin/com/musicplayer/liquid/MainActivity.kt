@@ -15,7 +15,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -49,6 +48,7 @@ import com.musicplayer.liquid.data.model.Track
 import com.musicplayer.liquid.ui.components.*
 import com.musicplayer.liquid.ui.player.PlayerViewModel
 import com.musicplayer.liquid.ui.theme.MusicPlayerLiquidTheme
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -165,8 +165,8 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                     val themeInteraction = remember { MutableInteractionSource() }
                     val isThemePressed by themeInteraction.collectIsPressedAsState()
                     val themeScale by animateFloatAsState(
-                        targetValue = if (isThemePressed) 0.97f else 1f,
-                        animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                        targetValue = if (isThemePressed) AnimationConstants.PRESS_SCALE else 1f,
+                        animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                         label = "theme_scale"
                     )
                     
@@ -193,8 +193,8 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                         val queueInteraction = remember { MutableInteractionSource() }
                         val isQueuePressed by queueInteraction.collectIsPressedAsState()
                         val queueScale by animateFloatAsState(
-                            targetValue = if (isQueuePressed) 0.97f else 1f,
-                            animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                            targetValue = if (isQueuePressed) AnimationConstants.PRESS_SCALE else 1f,
+                            animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                             label = "queue_scale"
                         )
                         
@@ -228,8 +228,8 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                         val filterInteraction = remember { MutableInteractionSource() }
                         val isFilterPressed by filterInteraction.collectIsPressedAsState()
                         val filterScale by animateFloatAsState(
-                            targetValue = if (isFilterPressed) 0.97f else 1f,
-                            animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                            targetValue = if (isFilterPressed) AnimationConstants.PRESS_SCALE else 1f,
+                            animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                             label = "filter_scale"
                         )
                         
@@ -372,15 +372,15 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                                 enter = slideInVertically(
                                     initialOffsetY = { it / 3 },
                                     animationSpec = tween(
-                                        durationMillis = 200,
-                                        delayMillis = (index * 30).coerceAtMost(150),
-                                        easing = LinearOutSlowInEasing
+                                        durationMillis = AnimationConstants.ENTRANCE_DURATION,
+                                        delayMillis = (index * AnimationConstants.STAGGER_DELAY).coerceAtMost(AnimationConstants.MAX_STAGGER_DELAY),
+                                        easing = AnimationConstants.EASE_OUT
                                     )
                                 ) + fadeIn(
                                     animationSpec = tween(
-                                        durationMillis = 200,
-                                        delayMillis = (index * 30).coerceAtMost(150),
-                                        easing = LinearOutSlowInEasing
+                                        durationMillis = AnimationConstants.ENTRANCE_DURATION,
+                                        delayMillis = (index * AnimationConstants.STAGGER_DELAY).coerceAtMost(AnimationConstants.MAX_STAGGER_DELAY),
+                                        easing = AnimationConstants.EASE_OUT
                                     )
                                 )
                             ) {
@@ -499,8 +499,8 @@ fun PlayerSection(
                 val isPlayerFavoritePressed by playerFavoriteInteraction.collectIsPressedAsState()
                 
                 val playerFavoriteScale by animateFloatAsState(
-                    targetValue = if (isPlayerFavoritePressed) 0.97f else 1f,
-                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    targetValue = if (isPlayerFavoritePressed) AnimationConstants.PRESS_SCALE else 1f,
+                    animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                     label = "player_favorite_scale"
                 )
                 
@@ -551,8 +551,8 @@ fun PlayerSection(
                 val modeInteraction = remember { MutableInteractionSource() }
                 val isModePressed by modeInteraction.collectIsPressedAsState()
                 val modeScale by animateFloatAsState(
-                    targetValue = if (isModePressed) 0.97f else 1f,
-                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    targetValue = if (isModePressed) AnimationConstants.PRESS_SCALE else 1f,
+                    animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                     label = "mode_scale"
                 )
                 
@@ -564,8 +564,8 @@ fun PlayerSection(
                     AnimatedContent(
                         targetState = playbackMode,
                         transitionSpec = {
-                            (fadeIn(animationSpec = tween(300)) + scaleIn(initialScale = 0.8f)).togetherWith(
-                                fadeOut(animationSpec = tween(200)) + scaleOut(targetScale = 0.8f)
+                            (fadeIn(animationSpec = tween(AnimationConstants.MODAL_DURATION)) + scaleIn(initialScale = 0.8f)).togetherWith(
+                                fadeOut(animationSpec = tween(AnimationConstants.ENTRANCE_DURATION)) + scaleOut(targetScale = 0.8f)
                             )
                         },
                         label = "mode_icon_animation"
@@ -592,8 +592,8 @@ fun PlayerSection(
                 val prevInteraction = remember { MutableInteractionSource() }
                 val isPrevPressed by prevInteraction.collectIsPressedAsState()
                 val prevScale by animateFloatAsState(
-                    targetValue = if (isPrevPressed) 0.97f else 1f,
-                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    targetValue = if (isPrevPressed) AnimationConstants.PRESS_SCALE else 1f,
+                    animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                     label = "prev_scale"
                 )
                 
@@ -615,10 +615,10 @@ fun PlayerSection(
                 val isPressed by playPauseInteraction.collectIsPressedAsState()
                 
                 val scale by animateFloatAsState(
-                    targetValue = if (isPressed) 0.97f else 1f,
+                    targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
                     animationSpec = tween(
-                        durationMillis = 100,
-                        easing = LinearOutSlowInEasing
+                        durationMillis = AnimationConstants.PRESS_DURATION,
+                        easing = AnimationConstants.EASE_OUT
                     ),
                     label = "play_button_scale"
                 )
@@ -647,8 +647,8 @@ fun PlayerSection(
                 val nextInteraction = remember { MutableInteractionSource() }
                 val isNextPressed by nextInteraction.collectIsPressedAsState()
                 val nextScale by animateFloatAsState(
-                    targetValue = if (isNextPressed) 0.97f else 1f,
-                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    targetValue = if (isNextPressed) AnimationConstants.PRESS_SCALE else 1f,
+                    animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                     label = "next_scale"
                 )
                 
@@ -759,8 +759,8 @@ fun TrackItem(
             val isFavoritePressed by favoriteInteraction.collectIsPressedAsState()
             
             val favoriteScale by animateFloatAsState(
-                targetValue = if (isFavoritePressed) 0.97f else 1f,
-                animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                targetValue = if (isFavoritePressed) AnimationConstants.PRESS_SCALE else 1f,
+                animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                 label = "favorite_scale"
             )
             
@@ -785,8 +785,8 @@ fun TrackItem(
                 val isMenuPressed by menuInteraction.collectIsPressedAsState()
                 
                 val menuScale by animateFloatAsState(
-                    targetValue = if (isMenuPressed) 0.97f else 1f,
-                    animationSpec = tween(100, easing = LinearOutSlowInEasing),
+                    targetValue = if (isMenuPressed) AnimationConstants.PRESS_SCALE else 1f,
+                    animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
                     label = "menu_scale"
                 )
                 
@@ -856,10 +856,10 @@ fun RecentTrackCard(
     val isPressed by interactionSource.collectIsPressedAsState()
     
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
+        targetValue = if (isPressed) AnimationConstants.PRESS_SCALE else 1f,
         animationSpec = tween(
-            durationMillis = 100,
-            easing = LinearOutSlowInEasing
+            durationMillis = AnimationConstants.PRESS_DURATION,
+            easing = AnimationConstants.EASE_OUT
         ),
         label = "recent_card_press"
     )

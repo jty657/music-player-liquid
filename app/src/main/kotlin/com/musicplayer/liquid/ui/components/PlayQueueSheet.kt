@@ -1,5 +1,9 @@
 package com.musicplayer.liquid.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -9,9 +13,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.musicplayer.liquid.data.model.Track
+import com.musicplayer.liquid.ui.theme.AnimationConstants
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,7 +134,7 @@ private fun QueueTrackItem(
     Card(
         colors = CardDefaults.cardColors(
             containerColor = if (isCurrentTrack) 
-                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f)
+                MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
             else 
                 MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
         )
@@ -139,10 +145,34 @@ private fun QueueTrackItem(
                 .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 播放按钮
+            // 当前播放指示器
+            if (isCurrentTrack) {
+                Icon(
+                    imageVector = Icons.Default.BarChart,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+            }
+            // 播放按钮（带按压反馈）
+            val playInteractionSource = remember { MutableInteractionSource() }
+            val playPressed by playInteractionSource.collectIsPressedAsState()
+            val playScale by animateFloatAsState(
+                targetValue = if (playPressed) AnimationConstants.PRESS_SCALE else 1f,
+                animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
+                label = "queue_play_scale"
+            )
+            
             IconButton(
                 onClick = onPlayClick,
-                modifier = Modifier.size(40.dp)
+                interactionSource = playInteractionSource,
+                modifier = Modifier
+                    .size(40.dp)
+                    .graphicsLayer {
+                        scaleX = playScale
+                        scaleY = playScale
+                    }
             ) {
                 Icon(
                     imageVector = if (isCurrentTrack) Icons.Default.PlayArrow else Icons.Default.PlayCircleOutline,
@@ -171,10 +201,24 @@ private fun QueueTrackItem(
                 )
             }
             
-            // 移除按钮
+            // 移除按钮（带按压反馈）
+            val removeInteractionSource = remember { MutableInteractionSource() }
+            val removePressed by removeInteractionSource.collectIsPressedAsState()
+            val removeScale by animateFloatAsState(
+                targetValue = if (removePressed) AnimationConstants.PRESS_SCALE else 1f,
+                animationSpec = tween(AnimationConstants.PRESS_DURATION, easing = AnimationConstants.EASE_OUT),
+                label = "queue_remove_scale"
+            )
+            
             IconButton(
                 onClick = onRemoveClick,
-                modifier = Modifier.size(40.dp)
+                interactionSource = removeInteractionSource,
+                modifier = Modifier
+                    .size(40.dp)
+                    .graphicsLayer {
+                        scaleX = removeScale
+                        scaleY = removeScale
+                    }
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,

@@ -42,7 +42,7 @@ fun EmptyState(
         visible = visible,
         enter = fadeIn(tween(300)) + scaleIn(
             initialScale = 0.9f,
-            animationSpec = tween(400, easing = LinearOutSlowInEasing)
+            animationSpec = tween(250, easing = LinearOutSlowInEasing)
         )
     ) {
         Column(
