@@ -41,6 +41,15 @@ class PlayerViewModel @Inject constructor(
     
     private var currentIndex = -1
     
+    init {
+        // 设置播放完成回调
+        if (musicPlayer is com.musicplayer.liquid.data.player.ExoPlayerImpl) {
+            musicPlayer.onPlaybackCompleted = {
+                handlePlaybackCompleted()
+            }
+        }
+    }
+    
     fun loadTracks() {
         viewModelScope.launch {
             try {
@@ -108,6 +117,20 @@ class PlayerViewModel @Inject constructor(
             PlaybackMode.REPEAT_ALL -> PlaybackMode.REPEAT_ONE
             PlaybackMode.REPEAT_ONE -> PlaybackMode.SHUFFLE
             PlaybackMode.SHUFFLE -> PlaybackMode.SEQUENTIAL
+        }
+    }
+    
+    private fun handlePlaybackCompleted() {
+        // 根据播放模式自动处理
+        when (_playbackMode.value) {
+            PlaybackMode.REPEAT_ONE -> {
+                // 单曲循环 - 重新播放当前曲目
+                currentTrack.value?.let { playTrack(it) }
+            }
+            PlaybackMode.SEQUENTIAL, PlaybackMode.REPEAT_ALL, PlaybackMode.SHUFFLE -> {
+                // 其他模式 - 播放下一曲
+                playNext()
+            }
         }
     }
     

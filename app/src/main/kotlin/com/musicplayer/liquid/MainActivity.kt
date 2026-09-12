@@ -151,7 +151,10 @@ fun MusicPlayerApp(viewModel: PlayerViewModel) {
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        items(tracks) { track ->
+                        items(
+                            items = tracks,
+                            key = { it.id } // 优化重组性能
+                        ) { track ->
                             TrackItem(
                                 track = track,
                                 isPlaying = currentTrack?.id == track.id && playbackState.isPlaying,
@@ -286,9 +289,8 @@ fun TrackItem(
     onClick: () -> Unit
 ) {
     GlassCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick)
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClick // 使用GlassCard内建的波纹效果
     ) {
         Row(
             modifier = Modifier

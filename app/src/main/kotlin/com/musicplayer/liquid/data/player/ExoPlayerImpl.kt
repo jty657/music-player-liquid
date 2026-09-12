@@ -38,6 +38,9 @@ class ExoPlayerImpl @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.Main)
     private var progressUpdateJob: Job? = null
     
+    // 播放完成回调
+    var onPlaybackCompleted: (() -> Unit)? = null
+    
     init {
         // 监听播放器状态变化
         player.addListener(object : Player.Listener {
@@ -82,6 +85,8 @@ class ExoPlayerImpl @Inject constructor(
             currentPosition = 0L,
             duration = _playbackState.value.duration
         )
+        // 触发播放完成回调
+        onPlaybackCompleted?.invoke()
     }
     
     override suspend fun play(track: Track) {

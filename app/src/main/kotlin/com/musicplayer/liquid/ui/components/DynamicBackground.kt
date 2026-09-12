@@ -65,8 +65,10 @@ fun DynamicBackground(
                 }
                 
                 bitmap?.let {
+                    // 使用缓存提升性能
+                    val cacheKey = albumArtUri.toString()
                     val palette = withContext(Dispatchers.Default) {
-                        Palette.from(it).generate()
+                        com.musicplayer.liquid.util.PaletteCache.getOrExtract(cacheKey, it)
                     }
                     
                     palette.vibrantSwatch?.rgb?.let { rgb ->
